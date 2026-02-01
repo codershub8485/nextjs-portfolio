@@ -11,8 +11,7 @@
     "export:prod": "set NODE_ENV=production&& npx next export --config next.config.prod.js",
     "deploy": "npx gh-pages -d out",
     "start": "node clean-server.js",
-    "start:clean": "node clean-server.js",
-    "postinstall": "npm run build"
+    "start:clean": "node clean-server.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
