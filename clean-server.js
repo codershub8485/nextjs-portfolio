@@ -6,6 +6,28 @@ const url = require('url');
 const port = parseInt(process.env.PORT) || 3001;
 const outDir = path.join(__dirname, 'out');
 
+// Try multiple possible directories for Railway
+const possibleDirs = [
+  path.join(__dirname, 'out'),
+  path.join(process.cwd(), 'out'),
+  '/app/out',
+  './out'
+];
+
+let workingDir = outDir;
+for (const dir of possibleDirs) {
+  if (fs.existsSync(dir)) {
+    workingDir = dir;
+    break;
+  }
+}
+
+console.log('Server starting...');
+console.log('Current directory:', __dirname);
+console.log('Working directory:', process.cwd());
+console.log('Out directory:', workingDir);
+console.log('Files in out directory:', fs.existsSync(workingDir) ? fs.readdirSync(workingDir) : 'Directory not found');
+
 // MIME types
 const mimeTypes = {
   '.html': 'text/html',
@@ -47,7 +69,7 @@ const server = http.createServer((req, res) => {
   res.setHeader('Service-Worker-Allowed', '/');
   res.setHeader('Clear-Site-Data', '"cache", "storage"');
 
-  const filePath = path.join(outDir, pathname);
+  const filePath = path.join(workingDir, pathname);
   const ext = path.parse(filePath).ext;
   const contentType = mimeTypes[ext] || 'application/octet-stream';
 
@@ -77,7 +99,7 @@ server.listen(port, () => {
   console.log(`Clean server running at http://localhost:${port}`);
   console.log('Environment:', process.env.NODE_ENV || 'development');
   console.log('No service worker interference!');
-  console.log('Serving files from:', outDir);
+  console.log('Serving files from:', workingDir);
 }).on('error', (err) => {
   console.error('Server error:', err);
   if (err.code === 'EADDRINUSE') {
