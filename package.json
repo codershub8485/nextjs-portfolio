@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:prod": "set NODE_ENV=production&& npx next build --config next.config.prod.js",
     "export": "next export",
-    "deploy": "npm run build && npm run export && npx gh-pages -d out"
-
+    "export:prod": "set NODE_ENV=production&& npx next export --config next.config.prod.js",
+    "deploy": "npx gh-pages -d out"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

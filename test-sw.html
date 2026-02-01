@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Worker Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Service Worker Status Check</h1>
+        <div id="status"></div>
+        
+        <h2>Actions</h2>
+        <button onclick="checkServiceWorker()">Check Service Worker</button>
+        <button onclick="unregisterServiceWorker()">Unregister All</button>
+        <button onclick="clearCaches()">Clear Caches</button>
+        <button onclick="testPortfolio()">Test Portfolio</button>
+        
+        <h2>Console Output</h2>
+        <div id="console"></div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const consoleDiv = document.getElementById('console');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            consoleDiv.innerHTML += `<div class="status ${type}">[${timestamp}] ${message}</div>`;
+            console.log(message);
+        }
+
+        function checkServiceWorker() {
+            log('Checking service worker status...');
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    if (registrations.length === 0) {
+                        log('No service workers found', 'success');
+                    } else {
+                        log(`Found ${registrations.length} service workers:`, 'info');
+                        registrations.forEach(registration => {
+                            log(`- ${registration.scope}`, 'info');
+                        });
+                    }
+                }).catch(error => {
+                    log('Error checking service workers: ' + error, 'error');
+                });
+            } else {
+                log('Service workers not supported', 'error');
+            }
+        }
+
+        function unregisterServiceWorker() {
+            log('Unregistering all service workers...');
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    let promises = registrations.map(registration => {
+                        log(`Unregistering: ${registration.scope}`);
+                        return registration.unregister();
+                    });
+                    
+                    return Promise.all(promises);
+                }).then(function() {
+                    log('All service workers unregistered', 'success');
+                    checkServiceWorker();
+                }).catch(error => {
+                    log('Error unregistering service workers: ' + error, 'error');
+                });
+            }
+        }
+
+        function clearCaches() {
+            log('Clearing all caches...');
+            
+            if ('caches' in window) {
+                caches.keys().then(function(cacheNames) {
+                    log(`Found ${cacheNames.length} caches:`, 'info');
+                    cacheNames.forEach(name => log(`- ${name}`, 'info'));
+                    
+                    return Promise.all(
+                        cacheNames.map(cacheName => caches.delete(cacheName))
+                    );
+                }).then(function() {
+                    log('All caches cleared', 'success');
+                }).catch(error => {
+                    log('Error clearing caches: ' + error, 'error');
+                });
+            }
+        }
+
+        function testPortfolio() {
+            log('Testing portfolio connection...');
+            fetch('http://localhost:3000')
+                .then(response => {
+                    if (response.ok) {
+                        log('Portfolio server is responding', 'success');
+                        window.open('http://localhost:3000', '_blank');
+                    } else {
+                        log(`Portfolio server responded with ${response.status}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    log('Error connecting to portfolio: ' + error, 'error');
+                });
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', function() {
+            log('Service Worker Test Tool loaded');
+            checkServiceWorker();
+        });
+    </script>
+</body>
+</html>

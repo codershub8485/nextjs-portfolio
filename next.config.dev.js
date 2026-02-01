@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  // Development configuration with static export
-  output: 'export',
-  
+  // Development configuration - no basePath for local development
   // Turbopack configuration
   turbopack: {
     // Empty config to silence the warning
