@@ -2,13 +2,16 @@
   "name": "nextjs-portfolio",
   "version": "1.0.0",
   "private": true,
+  "main": "clean-server.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "build:prod": "set NODE_ENV=production&& npx next build --config next.config.prod.js",
     "export": "next export",
     "export:prod": "set NODE_ENV=production&& npx next export --config next.config.prod.js",
-    "deploy": "npx gh-pages -d out"
+    "deploy": "npx gh-pages -d out",
+    "start": "npx serve out -l $PORT",
+    "start:clean": "node clean-server.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
