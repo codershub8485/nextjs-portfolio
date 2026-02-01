@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-const port = process.env.PORT || 3001;
+const port = parseInt(process.env.PORT) || 3001;
 const outDir = path.join(__dirname, 'out');
 
 // MIME types
@@ -75,5 +75,13 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, () => {
   console.log(`Clean server running at http://localhost:${port}`);
+  console.log('Environment:', process.env.NODE_ENV || 'development');
   console.log('No service worker interference!');
+  console.log('Serving files from:', outDir);
+}).on('error', (err) => {
+  console.error('Server error:', err);
+  if (err.code === 'EADDRINUSE') {
+    console.log(`Port ${port} is in use, trying ${port + 1}`);
+    server.listen(port + 1);
+  }
 });
